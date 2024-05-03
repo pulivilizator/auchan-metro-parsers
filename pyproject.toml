@@ -11,6 +11,7 @@ requests = "^2.31.0"
 fake-useragent = "^1.5.1"
 bs4 = "^0.0.2"
 aiohttp = "^3.9.5"
+playwright = "^1.43.0"
 
 
 [build-system]
