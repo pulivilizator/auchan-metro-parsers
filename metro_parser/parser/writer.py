@@ -1,8 +1,11 @@
 import csv
+from typing import Iterable
 
 
 class CSVWriter:
-    def __init__(self, products, path='data.csv', mode='a'):
+    def __init__(self, products: Iterable,
+                 path: str = 'data.csv',
+                 mode: str = 'a'):
         self.path = path
         self.mode = mode
         self.products = products
@@ -14,7 +17,6 @@ class CSVWriter:
                   mode=self.mode,
                   newline='',
                   encoding='utf-8-sig') as file:
-
             writer = csv.writer(file, delimiter=';')
             writer.writerows(self.products)
 
@@ -23,7 +25,6 @@ class CSVWriter:
                   mode='w',
                   newline='',
                   encoding='utf-8-sig') as file:
-
             writer = csv.writer(file, delimiter=';')
             writer.writerow([
                 'id', 'Наименование', 'URL',

@@ -1,14 +1,20 @@
-import requests
+import asyncio
+from random import random
+
+from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
 from metro_parser.settings import PRODUCTS_COUNT_IN_PAGE
 
 
-def json_getter(store_id: int,
-                in_stock: bool = True,
-                category_slug: str = 'kofe') -> list[dict]:
-    size = PRODUCTS_COUNT_IN_PAGE * _get_max_page(store_id)
+async def json_getter(store_id: int,
+                      session: ClientSession,
+                      in_stock: bool = True,
+                      category_slug: str = 'kofe') -> list[dict]:
+    await asyncio.sleep(random())
+    max_page_number = await _get_max_page(store_id, session)
+    size = PRODUCTS_COUNT_IN_PAGE * max_page_number
     ua = UserAgent()
     headers = {
         'content-type': 'application/json',
@@ -25,17 +31,16 @@ def json_getter(store_id: int,
             'slug': category_slug,
         },
     }
-
-    response = requests.post(
-        'https://api.metro-cc.ru/products-api/graph',
-        headers=headers,
-        json=json_data
-    )
-    raw_data = response.json()
+    async with session.post('https://api.metro-cc.ru/products-api/graph',
+                            headers=headers,
+                            json=json_data,
+                            cookies={}
+                            ) as response:
+        raw_data = await response.json(encoding='utf-8-sig')
     return raw_data['data']['category']['products']
 
 
-def _get_max_page(store_id: int) -> int:
+async def _get_max_page(store_id: int, session: ClientSession) -> int:
     ua = UserAgent()
 
     cookies = {
@@ -45,12 +50,10 @@ def _get_max_page(store_id: int) -> int:
     headers = {
         'user-agent': ua.random,
     }
-
-    response = requests.get(
-        'https://online.metro-cc.ru/category/chaj-kofe-kakao/kofe?in_stock=1',
-        headers=headers, cookies=cookies)
-
-    soup = BeautifulSoup(response.text, 'html.parser')
-
+    async with session.get('https://online.metro-cc.ru/category/chaj-kofe-kakao/kofe?in_stock=1',
+                           headers=headers,
+                           cookies=cookies) as response:
+        html_page = await response.text(encoding='utf-8-sig')
+    soup = BeautifulSoup(html_page, 'html.parser')
     pages = soup.find(class_='catalog-paginate').find_all('li')
     return max([int(page.text) for page in pages if page.text.isdigit()])
