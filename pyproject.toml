@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "test-task"
+version = "0.1.0"
+description = ""
+authors = ["dmitriy <dimaddf21@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+requests = "^2.31.0"
+fake-useragent = "^1.5.1"
+bs4 = "^0.0.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
